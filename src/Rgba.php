@@ -30,9 +30,14 @@ class Rgba implements Color
         Validate::rgbaColorString($string);
 
         $matches = null;
-        preg_match('/rgba\( *(\d{1,3} *, *\d{1,3} *, *\d{1,3} *, *[0-1]*(\.\d{1,})?) *\)/i', $string, $matches);
+        preg_match('/rgba\( *(\d{1,3}[%]* *, *\d{1,3}[%]* *, *\d{1,3}[%]* *, *[0-1]*(\.\d{1,})?) *\)/i', $string, $matches);
 
         $channels = explode(',', $matches[1]);
+        // Check to see if any values passed are % rather than integers, and ensure all are integers
+        $channels[0] = round(substr($channels[0],-1) == '%' ? rtrim($channels[0],'%') * 255 / 100 : $channels[0],0);
+        $channels[1] = round(substr($channels[1],-1) == '%' ? rtrim($channels[1],'%') * 255 / 100 : $channels[1],0);
+        $channels[2] = round(substr($channels[2],-1) == '%' ? rtrim($channels[1],'%') * 255 / 100 : $channels[2],0);
+        $channels[3] = max(min(floatval($channels[3]), 1),0);
         [$red, $green, $blue, $alpha] = array_map('trim', $channels);
 
         return new static($red, $green, $blue, $alpha);

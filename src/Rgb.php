@@ -25,9 +25,14 @@ class Rgb implements Color
         Validate::rgbColorString($string);
 
         $matches = null;
-        preg_match('/rgb\( *(\d{1,3} *, *\d{1,3} *, *\d{1,3}) *\)/i', $string, $matches);
+        preg_match('/rgb\( *(\d{1,3}[%]* *, *\d{1,3}[%]* *, *\d{1,3}[%]*) *\)/i', $string, $matches);
 
         $channels = explode(',', $matches[1]);
+        // Check to see if any values passed are % rather than integers, and ensure all are integers
+        // Check to see if any values passed are % rather than integers, and ensure all are integers
+        $channels[0] = round(substr($channels[0],-1) == '%' ? rtrim($channels[0],'%') * 255 / 100 : $channels[0],0);
+        $channels[1] = round(substr($channels[1],-1) == '%' ? rtrim($channels[1],'%') * 255 / 100 : $channels[1],0);
+        $channels[2] = round(substr($channels[2],-1) == '%' ? rtrim($channels[1],'%') * 255 / 100 : $channels[2],0);
         [$red, $green, $blue] = array_map('trim', $channels);
 
         return new static($red, $green, $blue);
@@ -46,6 +51,11 @@ class Rgb implements Color
     public function blue(): int
     {
         return $this->blue;
+    }
+
+    public function alpha(): float
+    {
+        return 1;
     }
 
     public function toCIELab(): CIELab
